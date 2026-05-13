@@ -6,7 +6,9 @@ const {
     createConcept,
     updateConcept,
     patchConcept,
-    deleteConcept
+    deleteConcept,
+    getRandomConcept,
+    getLatestConcepts
 } = require('../controllers/conceptController');
 
 // ============================================================
@@ -16,6 +18,14 @@ const {
 // @route   GET /api/v1/concepts
 // @desc    Fetch all concepts
 router.get('/api/v1/concepts', getConcepts);
+
+// @route   GET /api/v1/concepts/random
+// @desc    Fetch random concept
+router.get('/api/v1/concepts/random', getRandomConcept);
+
+// @route   GET /api/v1/concepts/latest
+// @desc    Fetch latest concepts
+router.get('/api/v1/concepts/latest', getLatestConcepts);
 
 // @route   GET /api/v1/concepts/:id
 // @desc    Fetch single concept
