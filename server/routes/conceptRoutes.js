@@ -8,7 +8,9 @@ const {
     patchConcept,
     deleteConcept,
     getRandomConcept,
-    getLatestConcepts
+    getLatestConcepts,
+    getTrendingConcepts,
+    getPopularConcepts
 } = require('../controllers/conceptController');
 
 // ============================================================
@@ -26,6 +28,14 @@ router.get('/api/v1/concepts/random', getRandomConcept);
 // @route   GET /api/v1/concepts/latest
 // @desc    Fetch latest concepts
 router.get('/api/v1/concepts/latest', getLatestConcepts);
+
+// @route   GET /api/v1/concepts/trending
+// @desc    Fetch trending concepts
+router.get('/api/v1/concepts/trending', getTrendingConcepts);
+
+// @route   GET /api/v1/concepts/popular
+// @desc    Fetch popular concepts
+router.get('/api/v1/concepts/popular', getPopularConcepts);
 
 // @route   GET /api/v1/concepts/:id
 // @desc    Fetch single concept

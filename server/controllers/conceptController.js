@@ -219,6 +219,52 @@ const getLatestConcepts = async (req, res) => {
 };
 
 // ============================================================
+// ROUTE #9: Fetch trending concepts
+// METHOD: GET
+// ENDPOINT: /api/v1/concepts/trending
+// ============================================================
+const getTrendingConcepts = async (req, res) => {
+  try {
+    // Fetches the most viewed concept
+    const concepts = await Concept.find().sort({ views: -1 }).limit(1);
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      data: concepts
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch trending concepts'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #10: Fetch popular concepts
+// METHOD: GET
+// ENDPOINT: /api/v1/concepts/popular
+// ============================================================
+const getPopularConcepts = async (req, res) => {
+  try {
+    // Fetches the most bookmarked concept
+    const concepts = await Concept.find().sort({ bookmarksCount: -1 }).limit(1);
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      data: concepts
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch popular concepts'
+    });
+  }
+};
+
+// ============================================================
 // EXPORTS
 // ============================================================
 module.exports = {
@@ -229,5 +275,7 @@ module.exports = {
   patchConcept,
   deleteConcept,
   getRandomConcept,
-  getLatestConcepts
+  getLatestConcepts,
+  getTrendingConcepts,
+  getPopularConcepts
 };
