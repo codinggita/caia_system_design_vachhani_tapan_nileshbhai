@@ -175,6 +175,50 @@ const deleteConcept = async (req, res) => {
 };
 
 // ============================================================
+// ROUTE #7: Fetch random concept
+// METHOD: GET
+// ENDPOINT: /api/v1/concepts/random
+// ============================================================
+const getRandomConcept = async (req, res) => {
+  try {
+    const concept = await Concept.aggregate([{ $sample: { size: 1 } }]);
+
+    res.status(200).json({
+      success: true,
+      data: concept[0] || null
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch random concept'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #8: Fetch latest concepts
+// METHOD: GET
+// ENDPOINT: /api/v1/concepts/latest
+// ============================================================
+const getLatestConcepts = async (req, res) => {
+  try {
+    // Fetches one recently created concept
+    const concepts = await Concept.find().sort({ createdAt: -1 }).limit(1);
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      data: concepts
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch latest concepts'
+    });
+  }
+};
+
+// ============================================================
 // EXPORTS
 // ============================================================
 module.exports = {
@@ -183,5 +227,7 @@ module.exports = {
   createConcept,
   updateConcept,
   patchConcept,
-  deleteConcept
+  deleteConcept,
+  getRandomConcept,
+  getLatestConcepts
 };
