@@ -202,8 +202,8 @@ const getRandomConcept = async (req, res) => {
 // ============================================================
 const getLatestConcepts = async (req, res) => {
   try {
-    // Fetches one recently created concept
-    const concepts = await Concept.find().sort({ createdAt: -1 }).limit(1);
+    // Fetches the most recently created concept that isn't archived
+    const concepts = await Concept.find({ isArchived: { $ne: true } }).sort({ createdAt: -1 }).limit(1);
 
     res.status(200).json({
       success: true,
@@ -226,7 +226,7 @@ const getLatestConcepts = async (req, res) => {
 const getTrendingConcepts = async (req, res) => {
   try {
     // Fetches the most viewed concept
-    const concepts = await Concept.find().sort({ views: -1 }).limit(1);
+    const concepts = await Concept.find({ isArchived: { $ne: true } }).sort({ views: -1 }).limit(1);
 
     res.status(200).json({
       success: true,
@@ -248,8 +248,8 @@ const getTrendingConcepts = async (req, res) => {
 // ============================================================
 const getPopularConcepts = async (req, res) => {
   try {
-    // Fetches the most bookmarked concept
-    const concepts = await Concept.find().sort({ bookmarksCount: -1 }).limit(1);
+    // Fetches the most bookmarked active concept
+    const concepts = await Concept.find({ isArchived: { $ne: true } }).sort({ bookmarksCount: -1 }).limit(1);
 
     res.status(200).json({
       success: true,
@@ -260,6 +260,146 @@ const getPopularConcepts = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Server Error: Unable to fetch popular concepts'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #11: Fetch concept summary
+// METHOD: GET
+// ENDPOINT: /api/v1/concepts/:id/summary
+// ============================================================
+const getConceptSummary = async (req, res) => {
+  try {
+    // Fetches only basic fields for summary using second-argument projection
+    const concept = await Concept.findById(req.params.id, {
+      title: 1,
+      category: 1,
+      subcategory: 1,
+      difficulty: 1,
+      tags: 1,
+      estimatedReadTime: 1
+    });
+
+    if (!concept) {
+      return res.status(404).json({
+        success: false,
+        error: 'Concept not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: concept
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch concept summary'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #12: Archive concept
+// METHOD: PATCH
+// ENDPOINT: /api/v1/concepts/:id/archive
+// ============================================================
+const archiveConcept = async (req, res) => {
+  try {
+    const concept = await Concept.findByIdAndUpdate(
+      req.params.id,
+      { isArchived: true },
+      { new: true }
+    );
+
+    if (!concept) {
+      return res.status(404).json({
+        success: false,
+        error: 'Concept not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Concept archived successfully',
+      data: concept
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to archive concept'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #13: Restore archived concept
+// METHOD: PATCH
+// ENDPOINT: /api/v1/concepts/:id/restore
+// ============================================================
+const restoreConcept = async (req, res) => {
+  try {
+    const concept = await Concept.findByIdAndUpdate(
+      req.params.id,
+      { isArchived: false },
+      { new: true }
+    );
+
+    if (!concept) {
+      return res.status(404).json({
+        success: false,
+        error: 'Concept not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Concept restored successfully',
+      data: concept
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to restore concept'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #14: Fetch related concepts
+// METHOD: GET
+// ENDPOINT: /api/v1/concepts/:id/related
+// ============================================================
+const getRelatedConcepts = async (req, res) => {
+  try {
+    // 1. Get the current concept to find its category and tags
+    const concept = await Concept.findById(req.params.id);
+
+    if (!concept) {
+      return res.status(404).json({
+        success: false,
+        error: 'Concept not found'
+      });
+    }
+
+    const related = await Concept.find({
+      _id: { $ne: concept._id }, 
+      $or: [
+        { category: concept.category },
+        { subcategory: concept.subcategory }
+      ]
+    }).limit(10);
+
+    res.status(200).json({
+      success: true,
+      count: related.length,
+      data: related
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch related concepts'
     });
   }
 };
@@ -277,5 +417,9 @@ module.exports = {
   getRandomConcept,
   getLatestConcepts,
   getTrendingConcepts,
-  getPopularConcepts
+  getPopularConcepts,
+  getConceptSummary,
+  archiveConcept,
+  restoreConcept,
+  getRelatedConcepts
 };

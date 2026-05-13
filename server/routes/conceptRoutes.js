@@ -10,7 +10,11 @@ const {
     getRandomConcept,
     getLatestConcepts,
     getTrendingConcepts,
-    getPopularConcepts
+    getPopularConcepts,
+    getConceptSummary,
+    archiveConcept,
+    restoreConcept,
+    getRelatedConcepts
 } = require('../controllers/conceptController');
 
 // ============================================================
@@ -56,5 +60,21 @@ router.patch('/api/v1/concepts/:id', patchConcept);
 // @route   DELETE /api/v1/concepts/:id
 // @desc    Delete concept record
 router.delete('/api/v1/concepts/:id', deleteConcept);
+
+// @route   GET /api/v1/concepts/:id/summary
+// @desc    Fetch concept summary
+router.get('/api/v1/concepts/:id/summary', getConceptSummary);
+
+// @route   PATCH /api/v1/concepts/:id/archive
+// @desc    Archive concept
+router.patch('/api/v1/concepts/:id/archive', archiveConcept);
+
+// @route   PATCH /api/v1/concepts/:id/restore
+// @desc    Restore archived concept
+router.patch('/api/v1/concepts/:id/restore', restoreConcept);
+
+// @route   GET /api/v1/concepts/:id/related
+// @desc    Fetch related concepts
+router.get('/api/v1/concepts/:id/related', getRelatedConcepts);
 
 module.exports = router;
