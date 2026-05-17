@@ -24,7 +24,11 @@ const {
     getAllPatterns,
     getConceptsByPattern,
     getAllLanguages,
-    getConceptsByLanguage
+    getConceptsByLanguage,
+    getAllDifficulties,
+    getConceptsByDifficulty,
+    getAllQuestionTypes,
+    getConceptsByQuestionType
 } = require('../controllers/conceptController');
 
 // ============================================================
@@ -142,5 +146,29 @@ router.get('/api/v1/languages', getAllLanguages);
 // @route   GET /api/v1/languages/:language
 // @desc    Fetch concepts by programming language
 router.get('/api/v1/languages/:language', getConceptsByLanguage);
+
+// ============================================================
+// DIFFICULTY ROUTES
+// ============================================================
+
+// @route   GET /api/v1/difficulty
+// @desc    Fetch all unique difficulty levels
+router.get('/api/v1/difficulty', getAllDifficulties);
+
+// @route   GET /api/v1/difficulty/:level
+// @desc    Fetch concepts by difficulty level
+router.get('/api/v1/difficulty/:level', getConceptsByDifficulty);
+
+// ============================================================
+// QUESTION TYPE ROUTES
+// ============================================================
+
+// @route   GET /api/v1/question-type
+// @desc    Fetch all unique question types
+router.get('/api/v1/question-type', getAllQuestionTypes);
+
+// @route   GET /api/v1/question-type/:type
+// @desc    Fetch concepts by question type
+router.get('/api/v1/question-type/:type', getConceptsByQuestionType);
 
 module.exports = router;

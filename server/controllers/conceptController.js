@@ -683,6 +683,85 @@ const getConceptsByLanguage = async (req, res) => {
 };
 
 // ============================================================
+// ROUTE #25: Fetch all unique difficulty levels
+// METHOD: GET
+// ENDPOINT: /api/v1/difficulty
+// ============================================================
+const getAllDifficulties = async (req, res) => {
+  try {
+    const difficulties = await Concept.distinct('metadata.difficulty');
+
+    res.status(200).json({
+      success: true,
+      count: difficulties.length,
+      data: difficulties
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// ============================================================
+// ROUTE #26: Fetch concepts by difficulty
+// METHOD: GET
+// ENDPOINT: /api/v1/difficulty/:level
+// ============================================================
+const getConceptsByDifficulty = async (req, res) => {
+  try {
+    const difficultyLevel = req.params.level;
+    const concepts = await Concept.find({ 'metadata.difficulty': difficultyLevel });
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      data: concepts,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// ============================================================
+// ROUTE #27: Fetch all unique question types
+// METHOD: GET
+// ENDPOINT: /api/v1/question-type
+// ============================================================
+const getAllQuestionTypes = async (req, res) => {
+  try {
+    const types = await Concept.distinct('metadata.question_type');
+
+    res.status(200).json({
+      success: true,
+      count: types.length,
+      data: types
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// ============================================================
+// ROUTE #28: Fetch concepts by question type
+// METHOD: GET
+// ENDPOINT: /api/v1/question-type/:type
+// ============================================================
+const getConceptsByQuestionType = async (req, res) => {
+  try {
+    const type = req.params.type;
+    const concepts = await Concept.find({ 'metadata.question_type': type });
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      data: concepts,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+
+// ============================================================
 // EXPORTS
 // ============================================================
 module.exports = {
@@ -709,5 +788,9 @@ module.exports = {
   getAllPatterns,
   getConceptsByPattern,
   getAllLanguages,
-  getConceptsByLanguage
+  getConceptsByLanguage,
+  getAllDifficulties,
+  getConceptsByDifficulty,
+  getAllQuestionTypes,
+  getConceptsByQuestionType,
 };
