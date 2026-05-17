@@ -202,8 +202,8 @@ const getRandomConcept = async (req, res) => {
 // ============================================================
 const getLatestConcepts = async (req, res) => {
   try {
-    // Fetches the most recently created concept that isn't archived
-    const concepts = await Concept.find({ isArchived: { $ne: true } }).sort({ createdAt: -1 }).limit(1);
+    // Fetches the most recently created concept
+    const concepts = await Concept.find().sort({ createdAt: -1 }).limit(1);
 
     res.status(200).json({
       success: true,
@@ -226,7 +226,7 @@ const getLatestConcepts = async (req, res) => {
 const getTrendingConcepts = async (req, res) => {
   try {
     // Fetches the most viewed concept
-    const concepts = await Concept.find({ isArchived: { $ne: true } }).sort({ views: -1 }).limit(1);
+    const concepts = await Concept.find().sort({ views: -1 }).limit(1);
 
     res.status(200).json({
       success: true,
@@ -248,8 +248,8 @@ const getTrendingConcepts = async (req, res) => {
 // ============================================================
 const getPopularConcepts = async (req, res) => {
   try {
-    // Fetches the most bookmarked active concept
-    const concepts = await Concept.find({ isArchived: { $ne: true } }).sort({ bookmarksCount: -1 }).limit(1);
+    // Fetches the most bookmarked concept
+    const concepts = await Concept.find().sort({ bookmarksCount: -1 }).limit(1);
 
     res.status(200).json({
       success: true,
@@ -384,10 +384,10 @@ const getRelatedConcepts = async (req, res) => {
     }
 
     const related = await Concept.find({
-      _id: { $ne: concept._id }, 
+      _id: { $ne: concept._id },
       $or: [
-        { category: concept.category },
-        { subcategory: concept.subcategory }
+        { 'metadata.category': concept.metadata?.category },
+        { 'metadata.subcategory': concept.metadata?.subcategory }
       ]
     }).limit(10);
 
@@ -400,6 +400,164 @@ const getRelatedConcepts = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Server Error: Unable to fetch related concepts'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #15: Fetch all unique categories
+// METHOD: GET
+// ENDPOINT: /api/v1/categories
+// ============================================================
+const getAllCategories = async (req, res) => {
+  try {
+    const categories = await Concept.distinct('metadata.category');
+
+    res.status(200).json({
+      success: true,
+      count: categories.length,
+      data: categories
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch categories'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #16: Fetch category details (stats)
+// METHOD: GET
+// ENDPOINT: /api/v1/categories/:category
+// ============================================================
+const getCategoryDetails = async (req, res) => {
+  try {
+    const categoryName = req.params.category;
+    
+    // Check both locations just in case
+    const count = await Concept.countDocuments({
+      $or: [
+        { 'metadata.category': categoryName },
+        { 'category': categoryName }
+      ]
+    });
+
+    if (count === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Category not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        name: categoryName,
+        totalConcepts: count
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch category details'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #17: Fetch concepts under a category
+// METHOD: GET
+// ENDPOINT: /api/v1/categories/:category/concepts
+// ============================================================
+const getConceptsByCategory = async (req, res) => {
+  try {
+    const categoryName = req.params.category;
+    const concepts = await Concept.find({
+      $or: [
+        { 'metadata.category': categoryName },
+        { 'category': categoryName }
+      ]
+    });
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      data: concepts
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch concepts for this category'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #18: Fetch all unique subcategories
+// METHOD: GET
+// ENDPOINT: /api/v1/subcategories
+// ============================================================
+const getAllSubcategories = async (req, res) => {
+  try {
+    const subcategories = await Concept.distinct('metadata.subcategory');
+
+    res.status(200).json({
+      success: true,
+      count: subcategories.length,
+      data: subcategories
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch subcategories'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #19: Fetch all unique tags
+// METHOD: GET
+// ENDPOINT: /api/v1/tags
+// ============================================================
+const getAllTags = async (req, res) => {
+  try {
+    const tags = await Concept.distinct('metadata.tags');
+
+    res.status(200).json({
+      success: true,
+      count: tags.length,
+      data: tags
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch tags'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #20: Fetch concepts by tag
+// METHOD: GET
+// ENDPOINT: /api/v1/tags/:tag
+// ============================================================
+const getConceptsByTag = async (req, res) => {
+  try {
+    const tagName = req.params.tag;
+    const concepts = await Concept.find({
+      'metadata.tags': { $regex: new RegExp(`^${tagName.trim()}$`, 'i') }
+    });
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      data: concepts
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch concepts for this tag'
     });
   }
 };
@@ -421,5 +579,11 @@ module.exports = {
   getConceptSummary,
   archiveConcept,
   restoreConcept,
-  getRelatedConcepts
+  getRelatedConcepts,
+  getAllCategories,
+  getCategoryDetails,
+  getConceptsByCategory,
+  getAllSubcategories,
+  getAllTags,
+  getConceptsByTag
 };

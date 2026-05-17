@@ -16,8 +16,11 @@ const ConceptSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: [true, 'Please add a category'],
     index: true
+  },
+  metadata: {
+    type: Object,
+    default: {}
   },
   subcategory: {
     type: String

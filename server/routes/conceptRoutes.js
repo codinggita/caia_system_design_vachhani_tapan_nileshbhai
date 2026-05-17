@@ -14,7 +14,13 @@ const {
     getConceptSummary,
     archiveConcept,
     restoreConcept,
-    getRelatedConcepts
+    getRelatedConcepts,
+    getAllCategories,
+    getCategoryDetails,
+    getConceptsByCategory,
+    getAllSubcategories,
+    getAllTags,
+    getConceptsByTag
 } = require('../controllers/conceptController');
 
 // ============================================================
@@ -76,5 +82,37 @@ router.patch('/api/v1/concepts/:id/restore', restoreConcept);
 // @route   GET /api/v1/concepts/:id/related
 // @desc    Fetch related concepts
 router.get('/api/v1/concepts/:id/related', getRelatedConcepts);
+
+// ============================================================
+// CATEGORY ROUTES
+// ============================================================
+
+// @route   GET /api/v1/categories
+// @desc    Fetch all unique architecture categories
+router.get('/api/v1/categories', getAllCategories);
+
+// @route   GET /api/v1/categories/:category
+// @desc    Fetch category details (stats)
+router.get('/api/v1/categories/:category', getCategoryDetails);
+
+// @route   GET /api/v1/categories/:category/concepts
+// @desc    Fetch concepts under a specific category
+router.get('/api/v1/categories/:category/concepts', getConceptsByCategory);
+
+// ============================================================
+// SUBCATEGORY & TAG ROUTES
+// ============================================================
+
+// @route   GET /api/v1/subcategories
+// @desc    Fetch all unique architecture subcategories
+router.get('/api/v1/subcategories', getAllSubcategories);
+
+// @route   GET /api/v1/tags
+// @desc    Fetch all unique architecture tags
+router.get('/api/v1/tags', getAllTags);
+
+// @route   GET /api/v1/tags/:tag
+// @desc    Fetch concepts by tag
+router.get('/api/v1/tags/:tag', getConceptsByTag);
 
 module.exports = router;
