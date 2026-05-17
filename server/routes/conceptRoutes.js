@@ -20,7 +20,11 @@ const {
     getConceptsByCategory,
     getAllSubcategories,
     getAllTags,
-    getConceptsByTag
+    getConceptsByTag,
+    getAllPatterns,
+    getConceptsByPattern,
+    getAllLanguages,
+    getConceptsByLanguage
 } = require('../controllers/conceptController');
 
 // ============================================================
@@ -114,5 +118,29 @@ router.get('/api/v1/tags', getAllTags);
 // @route   GET /api/v1/tags/:tag
 // @desc    Fetch concepts by tag
 router.get('/api/v1/tags/:tag', getConceptsByTag);
+
+// ============================================================
+// PATTERN ROUTES
+// ============================================================
+
+// @route   GET /api/v1/patterns
+// @desc    Fetch all unique architecture patterns
+router.get('/api/v1/patterns', getAllPatterns);
+
+// @route   GET /api/v1/patterns/:pattern
+// @desc    Fetch concepts by architecture pattern
+router.get('/api/v1/patterns/:patternName', getConceptsByPattern);
+
+// ============================================================
+// LANGUAGE ROUTES
+// ============================================================
+
+// @route   GET /api/v1/languages
+// @desc    Fetch all unique programming languages
+router.get('/api/v1/languages', getAllLanguages);
+
+// @route   GET /api/v1/languages/:language
+// @desc    Fetch concepts by programming language
+router.get('/api/v1/languages/:language', getConceptsByLanguage);
 
 module.exports = router;

@@ -434,7 +434,7 @@ const getAllCategories = async (req, res) => {
 const getCategoryDetails = async (req, res) => {
   try {
     const categoryName = req.params.category;
-    
+
     // Check both locations just in case
     const count = await Concept.countDocuments({
       $or: [
@@ -516,13 +516,13 @@ const getAllSubcategories = async (req, res) => {
 };
 
 // ============================================================
-// ROUTE #19: Fetch all unique tags
+// ROUTE #19: Fetch all unique tags(concepts)
 // METHOD: GET
 // ENDPOINT: /api/v1/tags
 // ============================================================
 const getAllTags = async (req, res) => {
   try {
-    const tags = await Concept.distinct('metadata.tags');
+    const tags = await Concept.distinct('metadata.concept');
 
     res.status(200).json({
       success: true,
@@ -545,9 +545,19 @@ const getAllTags = async (req, res) => {
 const getConceptsByTag = async (req, res) => {
   try {
     const tagName = req.params.tag;
-    const concepts = await Concept.find({
-      'metadata.tags': { $regex: new RegExp(`^${tagName.trim()}$`, 'i') }
-    });
+
+    const filter = { 'metadata.concept': tagName };
+
+    const total = await Concept.countDocuments(filter);
+
+    if (total === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No concepts found for this tag",
+      });
+    }
+
+    const concepts = await Concept.find(filter);
 
     res.status(200).json({
       success: true,
@@ -555,10 +565,120 @@ const getConceptsByTag = async (req, res) => {
       data: concepts
     });
   } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// ============================================================
+// ROUTE #21: Fetch all unique design patterns
+// METHOD: GET
+// ENDPOINT: /api/v1/patterns
+// ============================================================
+const getAllPatterns = async (req, res) => {
+  try {
+    const patterns = await Concept.distinct('metadata.patterns_covered');
+
+    res.status(200).json({
+      success: true,
+      count: patterns.length,
+      data: patterns
+    });
+  } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Server Error: Unable to fetch concepts for this tag'
+      error: 'Server Error: Unable to fetch patterns'
     });
+  }
+};
+
+// ============================================================
+// ROUTE #22: Fetch concepts by design pattern
+// METHOD: GET
+// ENDPOINT: /api/v1/patterns/:patternName
+// ============================================================
+const getConceptsByPattern = async (req, res) => {
+  try {
+    const patternName = req.params.patternName;
+
+    const filter = { 'metadata.patterns_covered': patternName };
+
+    const total = await Concept.countDocuments(filter);
+
+    if (total === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No concepts found for this pattern",
+      });
+    }
+
+    const concepts = await Concept.find(filter);
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      data: concepts
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// ============================================================
+// ROUTE #23: Fetch all unique languages
+// METHOD: GET
+// ENDPOINT: /api/v1/languages
+// ============================================================
+const getAllLanguages = async (req, res) => {
+  try {
+    const languages = await Concept.distinct('metadata.languages');
+
+    res.status(200).json({
+      success: true,
+      count: languages.length,
+      data: languages
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to fetch languages'
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #24: Fetch concepts by language
+// METHOD: GET
+// ENDPOINT: /api/v1/languages/:language
+// ============================================================
+const getConceptsByLanguage = async (req, res) => {
+  try {
+    // Get the language name from the URL   e.g. /languages/JavaScript
+    const languageName = req.params.language;
+
+    // Build filter object
+    const filter = { 'metadata.languages': languageName };
+
+    // Count how many documents match
+    const total = await Concept.countDocuments(filter);
+
+    // If nothing matches, return 404
+    if (total === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No concepts found for this language",
+      });
+    }
+
+    // Fetch the matching documents
+    const concepts = await Concept.find(filter);
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      data: concepts,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -585,5 +705,9 @@ module.exports = {
   getConceptsByCategory,
   getAllSubcategories,
   getAllTags,
-  getConceptsByTag
+  getConceptsByTag,
+  getAllPatterns,
+  getConceptsByPattern,
+  getAllLanguages,
+  getConceptsByLanguage
 };
