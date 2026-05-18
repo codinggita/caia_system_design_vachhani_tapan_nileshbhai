@@ -12,6 +12,7 @@ connectDB();
 
 // Import Routes
 const conceptRoutes = require('./routes/conceptRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 // Mount Routes
 app.use('/', conceptRoutes);
+app.use('/', searchRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
