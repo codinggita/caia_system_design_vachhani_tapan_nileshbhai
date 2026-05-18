@@ -5,6 +5,10 @@ const {
     searchByTitle,
     searchByContent,
     searchByTags,
+    searchByPatterns,
+    searchByLanguage,
+    searchByCategory,
+    searchByDifficulty,
 } = require('../controllers/searchController');
 
 // ============================================================
@@ -26,5 +30,21 @@ router.get('/api/v1/search/content', searchByContent);
 // @route   GET /api/v1/search/tags?q=caching
 // @desc    Search using tags
 router.get('/api/v1/search/tags', searchByTags);
+
+// @route   GET /api/v1/search/patterns?q=CQRS
+// @desc    Search by design patterns
+router.get('/api/v1/search/patterns', searchByPatterns);
+
+// @route   GET /api/v1/search/language?q=python
+// @desc    Search by programming language
+router.get('/api/v1/search/language', searchByLanguage);
+
+// @route   GET /api/v1/search/category?q=distributed
+// @desc    Search by category
+router.get('/api/v1/search/category', searchByCategory);
+
+// @route   GET /api/v1/search/difficulty?q=advanced
+// @desc    Search by difficulty level
+router.get('/api/v1/search/difficulty', searchByDifficulty);
 
 module.exports = router;
