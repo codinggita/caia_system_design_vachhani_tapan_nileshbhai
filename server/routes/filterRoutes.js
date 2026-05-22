@@ -4,7 +4,11 @@ const {
     filterByCategory,
     filterByDifficulty,
     filterByPattern,
-    filterByLanguage
+    filterByLanguage,
+    filterByDate,
+    filterByTags,
+    fetchBookmarks,
+    fetchTrending
 } = require('../controllers/filterController');
 
 // @route   GET /api/v1/filter/category?name=Microservices
@@ -18,5 +22,17 @@ router.get('/api/v1/filter/pattern', filterByPattern);
 
 // @route   GET /api/v1/filter/language?name=Go
 router.get('/api/v1/filter/language', filterByLanguage);
+
+// @route   GET /api/v1/filter/date?after=2025-01-01
+router.get('/api/v1/filter/date', filterByDate);
+
+// @route   GET /api/v1/filter/tags?list=redis,kafka
+router.get('/api/v1/filter/tags', filterByTags);
+
+// @route   GET /api/v1/filter/bookmarks
+router.get('/api/v1/filter/bookmarks', fetchBookmarks);
+
+// @route   GET /api/v1/filter/trending
+router.get('/api/v1/filter/trending', fetchTrending);
 
 module.exports = router;
