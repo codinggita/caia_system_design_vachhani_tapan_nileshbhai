@@ -8,7 +8,14 @@ const {
     filterByDate,
     filterByTags,
     fetchBookmarks,
-    fetchTrending
+    fetchTrending,
+    fetchPopular,
+    fetchUnexplored,
+    fetchExpertOnly,
+    fetchFrontend,
+    fetchBackend,
+    fetchDevops,
+    fetchCloud
 } = require('../controllers/filterController');
 
 // @route   GET /api/v1/filter/category?name=Microservices
@@ -34,5 +41,26 @@ router.get('/api/v1/filter/bookmarks', fetchBookmarks);
 
 // @route   GET /api/v1/filter/trending
 router.get('/api/v1/filter/trending', fetchTrending);
+
+// @route   GET /api/v1/filter/popular
+router.get('/api/v1/filter/popular', fetchPopular);
+
+// @route   GET /api/v1/filter/unexplored
+router.get('/api/v1/filter/unexplored', fetchUnexplored);
+
+// @route   GET /api/v1/filter/expert-only
+router.get('/api/v1/filter/expert-only', fetchExpertOnly);
+
+// @route   GET /api/v1/filter/frontend
+router.get('/api/v1/filter/frontend', fetchFrontend);
+
+// @route   GET /api/v1/filter/backend
+router.get('/api/v1/filter/backend', fetchBackend);
+
+// @route   GET /api/v1/filter/devops
+router.get('/api/v1/filter/devops', fetchDevops);
+
+// @route   GET /api/v1/filter/cloud
+router.get('/api/v1/filter/cloud', fetchCloud);
 
 module.exports = router;
