@@ -9,6 +9,13 @@ const {
     searchByLanguage,
     searchByCategory,
     searchByDifficulty,
+    fuzzySearch,
+    autocompleteSuggestions,
+    getRecentSearches,
+    getPopularSearches,
+    voiceSearch,
+    exactSearch,
+    regexSearch,
 } = require('../controllers/searchController');
 
 // ============================================================
@@ -46,5 +53,33 @@ router.get('/api/v1/search/category', searchByCategory);
 // @route   GET /api/v1/search/difficulty?q=advanced
 // @desc    Search by difficulty level
 router.get('/api/v1/search/difficulty', searchByDifficulty);
+
+// @route   GET /api/v1/search/fuzzy?q=kafka
+// @desc    Fuzzy search
+router.get('/api/v1/search/fuzzy', fuzzySearch);
+
+// @route   GET /api/v1/search/autocomplete?q=event
+// @desc    Autocomplete suggestions
+router.get('/api/v1/search/autocomplete', autocompleteSuggestions);
+
+// @route   GET /api/v1/search/recent
+// @desc    Fetch recent searches
+router.get('/api/v1/search/recent', getRecentSearches);
+
+// @route   GET /api/v1/search/popular
+// @desc    Fetch trending searches
+router.get('/api/v1/search/popular', getPopularSearches);
+
+// @route   GET /api/v1/search/voice?q=load balancing
+// @desc    Voice optimized search
+router.get('/api/v1/search/voice', voiceSearch);
+
+// @route   GET /api/v1/search/exact?q=event sourcing
+// @desc    Exact phrase search
+router.get('/api/v1/search/exact', exactSearch);
+
+// @route   GET /api/v1/search/regex?pattern=cache
+// @desc    Regex based search
+router.get('/api/v1/search/regex', regexSearch);
 
 module.exports = router;
