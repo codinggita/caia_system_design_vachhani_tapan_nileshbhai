@@ -14,6 +14,7 @@ connectDB();
 const conceptRoutes = require('./routes/conceptRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const filterRoutes = require('./routes/filterRoutes');
+const paginationRoutes = require('./routes/paginationRoutes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(cors());
 app.use(cookieParser());
 
 // Mount Routes
+app.use('/', paginationRoutes);
 app.use('/', conceptRoutes);
 app.use('/', searchRoutes);
 app.use('/', filterRoutes);
