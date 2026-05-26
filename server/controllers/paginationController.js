@@ -139,10 +139,161 @@ const getPaginatedTrendingConcepts = async (req, res) => {
   }
 };
 
+// ============================================================
+// ROUTE: Paginated bookmarks
+// METHOD: GET
+// ENDPOINT: /api/v1/concepts/bookmarks
+// ============================================================
+const getPaginatedBookmarks = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const startIndex = (page - 1) * limit;
+
+    // Assuming bookmarks means top bookmarked concepts
+    const total = await Concept.countDocuments({ bookmarksCount: { $gt: 0 } });
+    const concepts = await Concept.find({ bookmarksCount: { $gt: 0 } })
+                                  .sort({ bookmarksCount: -1 })
+                                  .skip(startIndex)
+                                  .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      data: concepts
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error: Unable to fetch bookmarks' });
+  }
+};
+
+// ============================================================
+// ROUTE: Paginated categories
+// METHOD: GET
+// ENDPOINT: /api/v1/categories
+// ============================================================
+const getPaginatedCategories = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const startIndex = (page - 1) * limit;
+
+    const categories = await Concept.distinct('metadata.category');
+    const total = categories.length;
+    
+    // Paginate in memory
+    const paginatedCategories = categories.slice(startIndex, startIndex + limit);
+
+    res.status(200).json({
+      success: true,
+      count: paginatedCategories.length,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      data: paginatedCategories
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error: Unable to fetch categories' });
+  }
+};
+
+// ============================================================
+// ROUTE: Paginated patterns
+// METHOD: GET
+// ENDPOINT: /api/v1/patterns
+// ============================================================
+const getPaginatedPatterns = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const startIndex = (page - 1) * limit;
+
+    const patterns = await Concept.distinct('metadata.patterns_covered');
+    const total = patterns.length;
+    
+    // Paginate in memory
+    const paginatedPatterns = patterns.slice(startIndex, startIndex + limit);
+
+    res.status(200).json({
+      success: true,
+      count: paginatedPatterns.length,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      data: paginatedPatterns
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error: Unable to fetch patterns' });
+  }
+};
+
+// ============================================================
+// ROUTE: Paginated search results
+// METHOD: GET
+// ENDPOINT: /api/v1/search/results
+// ============================================================
+const getPaginatedSearchResults = async (req, res) => {
+  try {
+    const { q } = req.query;
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const startIndex = (page - 1) * limit;
+
+    if (!q || q.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Search query is required. Use ?q=your_search_term'
+      });
+    }
+
+    const regex = new RegExp(q.trim(), 'i');
+
+    const filter = {
+      $or: [
+        { title: regex },
+        { response: regex },
+        { prompt: regex },
+        { category: regex },
+        { subcategory: regex },
+        { tags: regex },
+        { 'metadata.category': regex },
+        { 'metadata.subcategory': regex },
+        { 'metadata.concept': regex },
+        { 'metadata.difficulty': regex },
+        { 'metadata.question_type': regex },
+        { 'metadata.languages': regex },
+        { 'metadata.patterns_covered': regex }
+      ]
+    };
+
+    const total = await Concept.countDocuments(filter);
+    const concepts = await Concept.find(filter).skip(startIndex).limit(limit);
+
+    res.status(200).json({
+      success: true,
+      count: concepts.length,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      query: q.trim(),
+      data: concepts
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error: Unable to fetch search results' });
+  }
+};
+
 module.exports = {
   getPaginatedConcepts,
   getScrollConcepts,
   getInfiniteConcepts,
   getPaginatedLatestConcepts,
-  getPaginatedTrendingConcepts
+  getPaginatedTrendingConcepts,
+  getPaginatedBookmarks,
+  getPaginatedCategories,
+  getPaginatedPatterns,
+  getPaginatedSearchResults
 };
