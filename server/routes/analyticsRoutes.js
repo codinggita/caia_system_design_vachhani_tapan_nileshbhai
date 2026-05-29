@@ -5,7 +5,12 @@ const {
     getCategoryDistribution,
     getDifficultyStats,
     getTopPatterns,
-    getTopLanguages
+    getTopLanguages,
+    getMostViewed,
+    getMostBookmarked,
+    getTrending,
+    getMonthlyGrowth,
+    getTopSearches
 } = require('../controllers/analyticsController');
 
 // ============================================================
@@ -31,5 +36,25 @@ router.get('/api/v1/analytics/patterns/top', getTopPatterns);
 // @route   GET /api/v1/analytics/languages/top
 // @desc    Top languages
 router.get('/api/v1/analytics/languages/top', getTopLanguages);
+
+// @route   GET /api/v1/analytics/views/top
+// @desc    Most viewed concepts
+router.get('/api/v1/analytics/views/top', getMostViewed);
+
+// @route   GET /api/v1/analytics/bookmarks/top
+// @desc    Most bookmarked concepts
+router.get('/api/v1/analytics/bookmarks/top', getMostBookmarked);
+
+// @route   GET /api/v1/analytics/trending
+// @desc    Trending analytics
+router.get('/api/v1/analytics/trending', getTrending);
+
+// @route   GET /api/v1/analytics/growth
+// @desc    Monthly growth stats
+router.get('/api/v1/analytics/growth', getMonthlyGrowth);
+
+// @route   GET /api/v1/analytics/searches/top
+// @desc    Most searched keywords
+router.get('/api/v1/analytics/searches/top', getTopSearches);
 
 module.exports = router;
