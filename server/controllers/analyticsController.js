@@ -146,10 +146,143 @@ const getTopLanguages = async (req, res) => {
     }
 };
 
+
+// ============================================================
+// ANALYTICS ROUTE #6: Most viewed concepts
+// METHOD: GET
+// ENDPOINT: /api/v1/analytics/views/top
+// ============================================================
+const getMostViewed = async (req, res) => {
+    try {
+        const concepts = await Concept.find()
+            .sort({ views: -1 })
+            .limit(10)
+            .select('title views category');
+
+        res.status(200).json({
+            success: true,
+            data: concepts
+        });
+    } catch (error) {
+        console.error("Error in getMostViewed:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+// ============================================================
+// ANALYTICS ROUTE #7: Most bookmarked concepts
+// METHOD: GET
+// ENDPOINT: /api/v1/analytics/bookmarks/top
+// ============================================================
+const getMostBookmarked = async (req, res) => {
+    try {
+        const concepts = await Concept.find()
+            .sort({ bookmarksCount: -1 })
+            .limit(10)
+            .select('title bookmarksCount category');
+
+        res.status(200).json({
+            success: true,
+            data: concepts
+        });
+    } catch (error) {
+        console.error("Error in getMostBookmarked:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+// ============================================================
+// ANALYTICS ROUTE #8: Trending analytics
+// METHOD: GET
+// ENDPOINT: /api/v1/analytics/trending
+// ============================================================
+const getTrending = async (req, res) => {
+    try {
+        const concepts = await Concept.find()
+            .sort({ views: -1, bookmarksCount: -1 })
+            .limit(10)
+            .select('title views bookmarksCount category');
+
+        res.status(200).json({
+            success: true,
+            data: concepts
+        });
+    } catch (error) {
+        console.error("Error in getTrending:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+// ============================================================
+// ANALYTICS ROUTE #9: Monthly growth stats
+// METHOD: GET
+// ENDPOINT: /api/v1/analytics/growth
+// ============================================================
+const getMonthlyGrowth = async (req, res) => {
+    try {
+        const growth = await Concept.aggregate([
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            data: growth.map(g => ({
+                period: `${g._id.year}-${String(g._id.month).padStart(2, '0')}`,
+                count: g.count
+            }))
+        });
+    } catch (error) {
+        console.error("Error in getMonthlyGrowth:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+// ============================================================
+// ANALYTICS ROUTE #10: Most searched keywords
+// METHOD: GET
+// ENDPOINT: /api/v1/analytics/searches/top
+// ============================================================
+const getTopSearches = async (req, res) => {
+    try {
+        // Since there is no SearchHistory model, returning placeholder data for now.
+        // In a real application, you would query a dedicated Search tracking collection.
+        const placeholderSearches = [
+            { keyword: "system design", count: 1245 },
+            { keyword: "microservices", count: 890 },
+            { keyword: "caching", count: 750 },
+            { keyword: "database scaling", count: 620 },
+            { keyword: "load balancer", count: 580 }
+        ];
+
+        res.status(200).json({
+            success: true,
+            message: "Note: Returning placeholder data as Search tracking is not yet implemented in DB.",
+            data: placeholderSearches
+        });
+    } catch (error) {
+        console.error("Error in getTopSearches:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
 module.exports = {
     getTotalConcepts,
     getCategoryDistribution,
     getDifficultyStats,
     getTopPatterns,
-    getTopLanguages
+    getTopLanguages,
+    getMostViewed,
+    getMostBookmarked,
+    getTrending,
+    getMonthlyGrowth,
+    getTopSearches
 };
