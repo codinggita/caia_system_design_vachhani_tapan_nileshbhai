@@ -16,6 +16,7 @@ const searchRoutes = require('./routes/searchRoutes');
 const filterRoutes = require('./routes/filterRoutes');
 const paginationRoutes = require('./routes/paginationRoutes');
 const sortRoutes = require('./routes/sortRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/', paginationRoutes);
 app.use('/', conceptRoutes);
 app.use('/', searchRoutes);
 app.use('/', filterRoutes);
+app.use('/', analyticsRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
