@@ -6,11 +6,16 @@ const {
     getDifficultyStats,
     getTopPatterns,
     getTopLanguages,
-    getMostViewed,
-    getMostBookmarked,
-    getTrending,
+    getTopViewedConcepts,
+    getTopBookmarkedConcepts,
+    getTrendingAnalytics,
     getMonthlyGrowth,
-    getTopSearches
+    getTopSearchedKeywords,
+    getFailedSearches,
+    getUserEngagement,
+    getApiPerformance,
+    getDatabasePerformance,
+    getCacheHitRate
 } = require('../controllers/analyticsController');
 
 // ============================================================
@@ -39,15 +44,15 @@ router.get('/api/v1/analytics/languages/top', getTopLanguages);
 
 // @route   GET /api/v1/analytics/views/top
 // @desc    Most viewed concepts
-router.get('/api/v1/analytics/views/top', getMostViewed);
+router.get('/api/v1/analytics/views/top', getTopViewedConcepts);
 
 // @route   GET /api/v1/analytics/bookmarks/top
 // @desc    Most bookmarked concepts
-router.get('/api/v1/analytics/bookmarks/top', getMostBookmarked);
+router.get('/api/v1/analytics/bookmarks/top', getTopBookmarkedConcepts);
 
 // @route   GET /api/v1/analytics/trending
 // @desc    Trending analytics
-router.get('/api/v1/analytics/trending', getTrending);
+router.get('/api/v1/analytics/trending', getTrendingAnalytics);
 
 // @route   GET /api/v1/analytics/growth
 // @desc    Monthly growth stats
@@ -55,6 +60,26 @@ router.get('/api/v1/analytics/growth', getMonthlyGrowth);
 
 // @route   GET /api/v1/analytics/searches/top
 // @desc    Most searched keywords
-router.get('/api/v1/analytics/searches/top', getTopSearches);
+router.get('/api/v1/analytics/searches/top', getTopSearchedKeywords);
+
+// @route   GET /api/v1/analytics/searches/failed
+// @desc    Failed searches
+router.get('/api/v1/analytics/searches/failed', getFailedSearches);
+
+// @route   GET /api/v1/analytics/engagement
+// @desc    User engagement analytics
+router.get('/api/v1/analytics/engagement', getUserEngagement);
+
+// @route   GET /api/v1/analytics/api-performance
+// @desc    API performance metrics
+router.get('/api/v1/analytics/api-performance', getApiPerformance);
+
+// @route   GET /api/v1/analytics/database-performance
+// @desc    Database performance
+router.get('/api/v1/analytics/database-performance', getDatabasePerformance);
+
+// @route   GET /api/v1/analytics/cache-hit-rate
+// @desc    Cache analytics
+router.get('/api/v1/analytics/cache-hit-rate', getCacheHitRate);
 
 module.exports = router;
