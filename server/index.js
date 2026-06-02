@@ -19,6 +19,7 @@ const sortRoutes = require('./routes/sortRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const discoveryRoutes = require('./routes/discoveryRoutes');
 const bookmarkNotesRoutes = require('./routes/bookmarkNotesRoutes');
+const bulkRoutes = require('./routes/bulkRoutes');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(cookieParser());
 // Mount Routes
 app.use('/', sortRoutes);
 app.use('/', paginationRoutes);
+app.use('/', bulkRoutes);
 app.use('/', conceptRoutes);
 app.use('/', searchRoutes);
 app.use('/', filterRoutes);
