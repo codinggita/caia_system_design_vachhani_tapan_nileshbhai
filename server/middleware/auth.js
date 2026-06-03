@@ -7,12 +7,14 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
   let token;
 
-  // 1. Check for token in Authorization header (Bearer token)
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1];
+  // 1. Check for token in Authorization header (Bearer token or raw token)
+  if (req.headers.authorization) {
+    if (req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    } else {
+      // Fallback: If they pasted the raw token directly without "Bearer "
+      token = req.headers.authorization.trim();
+    }
   }
 
   // 2. Fallback: Check for token in cookies

@@ -345,6 +345,334 @@ const getProfile = async (req, res) => {
 };
 
 // ============================================================
+// ROUTE #6: Update user profile
+// METHOD: PATCH
+// ENDPOINT: /api/v1/auth/profile
+// ACCESS: Private (requires auth)
+// ============================================================
+const updateProfile = async (req, res) => {
+  try {
+    const { name, avatar } = req.body;
+
+    // Build update object with only allowed fields
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (avatar !== undefined) updateFields.avatar = avatar;
+
+    // Prevent updating sensitive fields through this route
+    if (req.body.password || req.body.email || req.body.role) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot update password, email, or role through this route',
+      });
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide at least one field to update (name, avatar)',
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(req.user._id, updateFields, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        isEmailVerified: user.isEmailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map((val) => val.message);
+      return res.status(400).json({
+        success: false,
+        error: messages,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to update profile',
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #7: Delete user profile (account)
+// METHOD: DELETE
+// ENDPOINT: /api/v1/auth/profile
+// ACCESS: Private (requires auth)
+// ============================================================
+const deleteProfile = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Clear auth cookies
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Account deleted successfully',
+      data: {},
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to delete account',
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #8: Forgot password — generate reset token
+// METHOD: POST
+// ENDPOINT: /api/v1/auth/forgot-password
+// ACCESS: Public
+// ============================================================
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide an email address',
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'No account found with this email address',
+      });
+    }
+
+    // Generate a 6-digit reset code
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Hash the reset token before storing in DB
+    const crypto = require('crypto');
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    // Save hashed token and expiry (10 minutes) to user document
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+    await user.save({ validateBeforeSave: false });
+
+    // In production, you would send this via email
+    // For now, return the token in the response for testing
+    res.status(200).json({
+      success: true,
+      message: 'Password reset token generated. In production, this would be sent via email.',
+      resetToken,
+      expiresIn: '10 minutes',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to process forgot password request',
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #9: Reset password — validate token and set new password
+// METHOD: POST
+// ENDPOINT: /api/v1/auth/reset-password
+// ACCESS: Public
+// ============================================================
+const resetPassword = async (req, res) => {
+  try {
+    const { email, resetToken, newPassword } = req.body;
+
+    if (!email || !resetToken || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide email, resetToken, and newPassword',
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'New password must be at least 6 characters',
+      });
+    }
+
+    // Hash the incoming token to compare with stored hash
+    const crypto = require('crypto');
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    // Find user with matching email, valid reset token, and non-expired token
+    const user = await User.findOne({
+      email,
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    }).select('+passwordResetToken +passwordResetExpires');
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired reset token',
+      });
+    }
+
+    // Set new password (will be auto-hashed by pre-save hook)
+    user.password = newPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successful. You can now login with your new password.',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to reset password',
+    });
+  }
+};
+
+// ============================================================
+// ROUTE #10: Verify email — generate or validate verification token
+// METHOD: POST
+// ENDPOINT: /api/v1/auth/verify-email
+// ACCESS: Private (requires auth)
+// ============================================================
+const verifyEmail = async (req, res) => {
+  try {
+    const { verificationToken } = req.body;
+
+    // ---- CASE 1: No token provided → Generate a new verification token ----
+    if (!verificationToken) {
+      const user = await User.findById(req.user._id);
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found',
+        });
+      }
+
+      if (user.isEmailVerified) {
+        return res.status(400).json({
+          success: false,
+          error: 'Email is already verified',
+        });
+      }
+
+      // Generate a 6-digit verification code
+      const token = Math.floor(100000 + Math.random() * 900000).toString();
+
+      const crypto = require('crypto');
+      const hashedToken = crypto
+        .createHash('sha256')
+        .update(token)
+        .digest('hex');
+
+      user.emailVerificationToken = hashedToken;
+      user.emailVerificationExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+      await user.save({ validateBeforeSave: false });
+
+      // In production, send this via email
+      return res.status(200).json({
+        success: true,
+        message: 'Verification token generated. In production, this would be sent via email.',
+        verificationToken: token,
+        expiresIn: '15 minutes',
+      });
+    }
+
+    // ---- CASE 2: Token provided → Verify the email ----
+    const crypto = require('crypto');
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(verificationToken)
+      .digest('hex');
+
+    const user = await User.findOne({
+      _id: req.user._id,
+      emailVerificationToken: hashedToken,
+      emailVerificationExpires: { $gt: Date.now() },
+    }).select('+emailVerificationToken +emailVerificationExpires');
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired verification token',
+      });
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: 'Email verified successfully',
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isEmailVerified: user.isEmailVerified,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error: Unable to verify email',
+    });
+  }
+};
+
+// ============================================================
 // EXPORTS
 // ============================================================
 module.exports = {
@@ -353,4 +681,9 @@ module.exports = {
   logoutUser,
   refreshToken,
   getProfile,
+  updateProfile,
+  deleteProfile,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
 };
