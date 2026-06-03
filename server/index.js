@@ -21,6 +21,8 @@ const discoveryRoutes = require('./routes/discoveryRoutes');
 const bookmarkNotesRoutes = require('./routes/bookmarkNotesRoutes');
 const bulkRoutes = require('./routes/bulkRoutes');
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const { checkMaintenance } = require('./middleware/auth');
 
 const app = express();
 
@@ -29,6 +31,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(cookieParser());
+
+// Global Maintenance Mode Middleware
+app.use(checkMaintenance);
 
 // Mount Routes
 app.use('/', sortRoutes);
@@ -41,6 +46,7 @@ app.use('/', analyticsRoutes);
 app.use('/', discoveryRoutes);
 app.use('/', bookmarkNotesRoutes);
 app.use('/', authRoutes);
+app.use('/', adminRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

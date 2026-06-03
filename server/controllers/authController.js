@@ -30,7 +30,13 @@ const registerUser = async (req, res) => {
     }
 
     // 3. Create user (password is auto-hashed via pre-save hook)
-    const user = await User.create({ name, email, password });
+    const { role } = req.body;
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: role || 'user',
+    });
 
     // 4. Generate tokens
     const accessToken = user.generateAccessToken();
