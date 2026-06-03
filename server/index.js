@@ -20,6 +20,7 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const discoveryRoutes = require('./routes/discoveryRoutes');
 const bookmarkNotesRoutes = require('./routes/bookmarkNotesRoutes');
 const bulkRoutes = require('./routes/bulkRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use('/', filterRoutes);
 app.use('/', analyticsRoutes);
 app.use('/', discoveryRoutes);
 app.use('/', bookmarkNotesRoutes);
+app.use('/', authRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
