@@ -22,6 +22,7 @@ const bookmarkNotesRoutes = require('./routes/bookmarkNotesRoutes');
 const bulkRoutes = require('./routes/bulkRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const systemRoutes = require('./routes/systemRoutes');
 const { checkMaintenance } = require('./middleware/auth');
 
 const app = express();
@@ -47,15 +48,11 @@ app.use('/', discoveryRoutes);
 app.use('/', bookmarkNotesRoutes);
 app.use('/', authRoutes);
 app.use('/', adminRoutes);
+app.use('/', systemRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
   res.send('🌌 CAIA System Design API is running...');
-});
-
-// Health Check
-app.get('/api/v1/health', (req, res) => {
-  res.status(200).json({ success: true, message: 'System is healthy' });
 });
 
 const PORT = process.env.PORT || 5000;
