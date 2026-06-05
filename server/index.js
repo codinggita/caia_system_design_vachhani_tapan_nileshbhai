@@ -23,6 +23,7 @@ const bulkRoutes = require('./routes/bulkRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const systemRoutes = require('./routes/systemRoutes');
+const middlewareRoutes = require('./routes/middlewareRoutes');
 const { checkMaintenance } = require('./middleware/auth');
 
 const app = express();
@@ -49,6 +50,7 @@ app.use('/', bookmarkNotesRoutes);
 app.use('/', authRoutes);
 app.use('/', adminRoutes);
 app.use('/', systemRoutes);
+app.use('/', middlewareRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
