@@ -25,6 +25,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const systemRoutes = require('./routes/systemRoutes');
 const middlewareRoutes = require('./routes/middlewareRoutes');
 const validationRoutes = require('./routes/validationRoutes');
+const headOptionsRoutes = require('./routes/headOptionsRoutes');
 const { checkMaintenance } = require('./middleware/auth');
 
 const app = express();
@@ -53,6 +54,7 @@ app.use('/', adminRoutes);
 app.use('/', systemRoutes);
 app.use('/', middlewareRoutes);
 app.use('/', validationRoutes);
+app.use('/', headOptionsRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
