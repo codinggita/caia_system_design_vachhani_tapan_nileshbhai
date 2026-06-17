@@ -33,7 +33,29 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+
+// Configure CORS options
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim().replace(/\/$/, ''))
+  : [];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, postman, curl)
+    if (!origin) return callback(null, true);
+    
+    if (
+      allowedOrigins.includes(origin) || 
+      allowedOrigins.length === 0 || 
+      process.env.NODE_ENV !== 'production'
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(cookieParser());
 
 // Global Maintenance Mode Middleware
