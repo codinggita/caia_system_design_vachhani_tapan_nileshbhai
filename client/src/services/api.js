@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-// Get base API URL from environment variables, fallback to local proxy path in development
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
-
-console.log("VITE_API_URL value:", import.meta.env.VITE_API_URL);
-console.log("API_BASE_URL resolved to:", API_BASE_URL);
+// Get base API URL from environment variables, fallback to Render in production and local proxy in development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? '/api/v1'
+    : 'https://caia-system-design-backend.onrender.com/api/v1');
 
 // Create Axios instance with base URL
 const api = axios.create({
