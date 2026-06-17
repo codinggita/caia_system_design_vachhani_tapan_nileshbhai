@@ -1,6 +1,34 @@
 import React, { useState } from 'react';
 import api from '../services/api';
 
+// Helper function to safely extract string error messages from Axios responses
+const getErrorMessage = (err, defaultMsg = 'An error occurred') => {
+  if (!err) return defaultMsg;
+  if (typeof err === 'string') return err;
+  
+  if (err.response && err.response.data) {
+    const data = err.response.data;
+    
+    if (data.error) {
+      if (typeof data.error === 'string') return data.error;
+      if (typeof data.error === 'object') {
+        if (data.error.message) return data.error.message;
+        return JSON.stringify(data.error);
+      }
+    }
+    
+    if (data.message) {
+      if (typeof data.message === 'string') return data.message;
+      return JSON.stringify(data.message);
+    }
+    
+    return typeof data === 'string' ? data : JSON.stringify(data);
+  }
+  
+  if (err.message) return err.message;
+  return defaultMsg;
+};
+
 const LoginPage = ({ onLoginSuccess, onBackToLanding }) => {
   const [isLoginTab, setIsLoginTab] = useState(true);
   const [email, setEmail] = useState('');
@@ -94,7 +122,7 @@ const LoginPage = ({ onLoginSuccess, onBackToLanding }) => {
         setLoading(false);
         setFeedback({
           type: 'error',
-          message: err.response?.data?.error || `Failed to sign in as ${type}. Try using the form manually.`
+          message: getErrorMessage(err, `Failed to sign in as ${type}. Try using the form manually.`)
         });
       }
     }
@@ -175,7 +203,7 @@ const LoginPage = ({ onLoginSuccess, onBackToLanding }) => {
         setLoading(false);
         setFeedback({
           type: 'error',
-          message: err.response.data.error || 'Authentication failed'
+          message: getErrorMessage(err, 'Authentication failed')
         });
       }
     });
