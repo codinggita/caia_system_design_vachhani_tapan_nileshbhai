@@ -31,7 +31,7 @@ const ConceptSchema = new mongoose.Schema({
   },
   difficulty: {
     type: String,
-    enum: ['beginner', 'intermediate', 'advanced'],
+    enum: ['beginner', 'intermediate', 'advanced', 'expert'],
     index: true
   },
   tags: [{

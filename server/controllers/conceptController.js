@@ -411,7 +411,9 @@ const getRelatedConcepts = async (req, res) => {
 // ============================================================
 const getAllCategories = async (req, res) => {
   try {
-    const categories = await Concept.distinct('metadata.category');
+    const categoriesRoot = await Concept.distinct('category');
+    const categoriesMeta = await Concept.distinct('metadata.category');
+    const categories = [...new Set([...categoriesRoot, ...categoriesMeta])].filter(Boolean);
 
     res.status(200).json({
       success: true,
@@ -500,7 +502,9 @@ const getConceptsByCategory = async (req, res) => {
 // ============================================================
 const getAllSubcategories = async (req, res) => {
   try {
-    const subcategories = await Concept.distinct('metadata.subcategory');
+    const subcategoriesRoot = await Concept.distinct('subcategory');
+    const subcategoriesMeta = await Concept.distinct('metadata.subcategory');
+    const subcategories = [...new Set([...subcategoriesRoot, ...subcategoriesMeta])].filter(Boolean);
 
     res.status(200).json({
       success: true,
@@ -522,7 +526,10 @@ const getAllSubcategories = async (req, res) => {
 // ============================================================
 const getAllTags = async (req, res) => {
   try {
-    const tags = await Concept.distinct('metadata.concept');
+    const tagsRoot = await Concept.distinct('tags');
+    const tagsMetaConcept = await Concept.distinct('metadata.concept');
+    const tagsMetaTags = await Concept.distinct('metadata.tags');
+    const tags = [...new Set([...tagsRoot, ...tagsMetaConcept, ...tagsMetaTags])].filter(Boolean);
 
     res.status(200).json({
       success: true,
@@ -546,7 +553,13 @@ const getConceptsByTag = async (req, res) => {
   try {
     const tagName = req.params.tag;
 
-    const filter = { 'metadata.concept': tagName };
+    const filter = {
+      $or: [
+        { tags: tagName },
+        { 'metadata.concept': tagName },
+        { 'metadata.tags': tagName }
+      ]
+    };
 
     const total = await Concept.countDocuments(filter);
 
@@ -689,7 +702,9 @@ const getConceptsByLanguage = async (req, res) => {
 // ============================================================
 const getAllDifficulties = async (req, res) => {
   try {
-    const difficulties = await Concept.distinct('metadata.difficulty');
+    const difficultiesRoot = await Concept.distinct('difficulty');
+    const difficultiesMeta = await Concept.distinct('metadata.difficulty');
+    const difficulties = [...new Set([...difficultiesRoot, ...difficultiesMeta])].filter(Boolean);
 
     res.status(200).json({
       success: true,
@@ -709,7 +724,12 @@ const getAllDifficulties = async (req, res) => {
 const getConceptsByDifficulty = async (req, res) => {
   try {
     const difficultyLevel = req.params.level;
-    const concepts = await Concept.find({ 'metadata.difficulty': difficultyLevel });
+    const concepts = await Concept.find({
+      $or: [
+        { difficulty: difficultyLevel },
+        { 'metadata.difficulty': difficultyLevel }
+      ]
+    });
 
     res.status(200).json({
       success: true,
@@ -728,7 +748,9 @@ const getConceptsByDifficulty = async (req, res) => {
 // ============================================================
 const getAllQuestionTypes = async (req, res) => {
   try {
-    const types = await Concept.distinct('metadata.question_type');
+    const typesRoot = await Concept.distinct('questionType');
+    const typesMeta = await Concept.distinct('metadata.question_type');
+    const types = [...new Set([...typesRoot, ...typesMeta])].filter(Boolean);
 
     res.status(200).json({
       success: true,
@@ -748,7 +770,12 @@ const getAllQuestionTypes = async (req, res) => {
 const getConceptsByQuestionType = async (req, res) => {
   try {
     const type = req.params.type;
-    const concepts = await Concept.find({ 'metadata.question_type': type });
+    const concepts = await Concept.find({
+      $or: [
+        { questionType: type },
+        { 'metadata.question_type': type }
+      ]
+    });
 
     res.status(200).json({
       success: true,

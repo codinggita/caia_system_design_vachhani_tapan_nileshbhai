@@ -33,7 +33,7 @@ const validateConcept = (req, res) => {
     errors.push(`Question type must be one of: ${allowedQuestionTypes.join(', ')}`);
   }
 
-  const allowedDifficulties = ['beginner', 'intermediate', 'advanced'];
+  const allowedDifficulties = ['beginner', 'intermediate', 'advanced', 'expert'];
   if (difficulty !== undefined && !allowedDifficulties.includes(difficulty)) {
     errors.push(`Difficulty must be one of: ${allowedDifficulties.join(', ')}`);
   }
@@ -117,7 +117,7 @@ const validateConceptUpdate = (req, res) => {
     errors.push(`Question type must be one of: ${allowedQuestionTypes.join(', ')}`);
   }
 
-  const allowedDifficulties = ['beginner', 'intermediate', 'advanced'];
+  const allowedDifficulties = ['beginner', 'intermediate', 'advanced', 'expert'];
   if (difficulty !== undefined && !allowedDifficulties.includes(difficulty)) {
     errors.push(`Difficulty must be one of: ${allowedDifficulties.join(', ')}`);
   }
