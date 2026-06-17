@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-// Create Axios instance with base URL (proxied via Vite)
+// Get base API URL from environment variables, fallback to local proxy path in development
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+
+// Create Axios instance with base URL
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -51,7 +54,7 @@ api.interceptors.response.use(
         const userStr = localStorage.getItem('user');
         if (userStr) {
           const user = JSON.parse(userStr);
-          const refreshRes = await axios.post('/api/v1/auth/refresh-token', {
+          const refreshRes = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
             refreshToken: user.refreshToken || '',
           });
           
