@@ -3,6 +3,9 @@ import axios from 'axios';
 // Get base API URL from environment variables, fallback to local proxy path in development
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
+console.log("VITE_API_URL value:", import.meta.env.VITE_API_URL);
+console.log("API_BASE_URL resolved to:", API_BASE_URL);
+
 // Create Axios instance with base URL
 const api = axios.create({
   baseURL: API_BASE_URL,
