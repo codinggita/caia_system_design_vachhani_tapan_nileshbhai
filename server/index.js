@@ -39,6 +39,27 @@ app.use(cookieParser());
 // Global Maintenance Mode Middleware
 app.use(checkMaintenance);
 
+// ============================================================
+// Root Welcome Route — must be before other route mounts
+// ============================================================
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: '🏛️ Welcome to the CAIA System Design Backend Project!',
+    project: 'CAIA System Design Knowledge Base',
+    version: '1.0.0',
+    description: 'A comprehensive RESTful API for managing system design concepts, interview preparation, and knowledge management.',
+    endpoints: {
+      concepts: '/api/v1/concepts',
+      search: '/api/v1/search',
+      auth: '/api/v1/auth',
+      analytics: '/api/v1/analytics',
+      docs: 'Visit the frontend client for full interactive documentation'
+    },
+    status: 'Running ✅'
+  });
+});
+
 // Mount Routes
 app.use('/', sortRoutes);
 app.use('/', paginationRoutes);
@@ -55,11 +76,6 @@ app.use('/', systemRoutes);
 app.use('/', middlewareRoutes);
 app.use('/', validationRoutes);
 app.use('/', headOptionsRoutes);
-
-// Basic Route
-app.get('/', (req, res) => {
-  res.send('🌌 CAIA System Design API is running...');
-});
 
 const PORT = process.env.PORT || 5000;
 
