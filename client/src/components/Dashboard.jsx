@@ -37,6 +37,34 @@ const parseMarkdown = (text) => {
   return html;
 };
 
+// Helper function to safely extract string error messages from Axios responses
+const getErrorMessage = (err, defaultMsg = 'An error occurred') => {
+  if (!err) return defaultMsg;
+  if (typeof err === 'string') return err;
+  
+  if (err.response && err.response.data) {
+    const data = err.response.data;
+    
+    if (data.error) {
+      if (typeof data.error === 'string') return data.error;
+      if (typeof data.error === 'object') {
+        if (data.error.message) return data.error.message;
+        return JSON.stringify(data.error);
+      }
+    }
+    
+    if (data.message) {
+      if (typeof data.message === 'string') return data.message;
+      return JSON.stringify(data.message);
+    }
+    
+    return typeof data === 'string' ? data : JSON.stringify(data);
+  }
+  
+  if (err.message) return err.message;
+  return defaultMsg;
+};
+
 const Dashboard = ({ user, onSignOut }) => {
   const isAdmin = user && user.role === 'admin';
   const userId = user ? user._id || user.email : 'anonymous';
@@ -464,7 +492,7 @@ const Dashboard = ({ user, onSignOut }) => {
           fetchConcepts();
         })
         .catch(err => {
-          showNotification('error', err.response?.data?.error || 'Failed to create concept');
+          showNotification('error', getErrorMessage(err, 'Failed to create concept'));
         });
     } else {
       api.patch(`/concepts/${crudForm.id}`, payload)
@@ -477,7 +505,7 @@ const Dashboard = ({ user, onSignOut }) => {
           }
         })
         .catch(err => {
-          showNotification('error', err.response?.data?.error || 'Failed to update concept');
+          showNotification('error', getErrorMessage(err, 'Failed to update concept'));
         });
     }
   };
@@ -611,7 +639,7 @@ const Dashboard = ({ user, onSignOut }) => {
         fetchConcepts();
       })
       .catch(err => {
-        setBulkActionFeedback(`FAILED: ${err.response?.data?.message || 'Error occurred'}`);
+        setBulkActionFeedback(`FAILED: ${getErrorMessage(err, 'Error occurred')}`);
       });
   };
 
@@ -628,7 +656,7 @@ const Dashboard = ({ user, onSignOut }) => {
         fetchConcepts();
       })
       .catch(err => {
-        setBulkActionFeedback(`FAILED: ${err.response?.data?.message || 'Error occurred'}`);
+        setBulkActionFeedback(`FAILED: ${getErrorMessage(err, 'Error occurred')}`);
       });
   };
 
@@ -646,7 +674,7 @@ const Dashboard = ({ user, onSignOut }) => {
         fetchConcepts();
       })
       .catch(err => {
-        setBulkActionFeedback(`FAILED: ${err.response?.data?.message || 'Error occurred'}`);
+        setBulkActionFeedback(`FAILED: ${getErrorMessage(err, 'Error occurred')}`);
       });
   };
 
