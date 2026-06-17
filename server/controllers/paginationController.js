@@ -181,7 +181,9 @@ const getPaginatedCategories = async (req, res) => {
     const limit = parseInt(req.query.limit, 10) || 20;
     const startIndex = (page - 1) * limit;
 
-    const categories = await Concept.distinct('metadata.category');
+    const categoriesRoot = await Concept.distinct('category');
+    const categoriesMeta = await Concept.distinct('metadata.category');
+    const categories = [...new Set([...categoriesRoot, ...categoriesMeta])].filter(Boolean);
     const total = categories.length;
     
     // Paginate in memory
