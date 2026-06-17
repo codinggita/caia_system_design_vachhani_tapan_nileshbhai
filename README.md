@@ -1,6 +1,8 @@
 # 🚀 CAIA System Design Knowledge Base
 
 ## 🔗 Important Links
+- 🖥️ **Live Frontend App (Vercel)**: [https://caiasystemdesign.vercel.app/](https://caiasystemdesign.vercel.app/)
+- ⚙️ **Live Backend API (Render)**: [https://caia-system-design-backend.onrender.com/](https://caia-system-design-backend.onrender.com/)
 - 💻 **GitHub Repository**: [https://github.com/Vachhani-Tapan/caia_system_design](https://github.com/Vachhani-Tapan/caia_system_design)
 - 📂 **Dataset (Google Drive)**: [https://drive.google.com/file/d/1um-ZWp-i2SnDgYC1kOV2BOPcYhzInejV/view?usp=sharing](https://drive.google.com/file/d/1um-ZWp-i2SnDgYC1kOV2BOPcYhzInejV/view?usp=sharing)
 
@@ -145,7 +147,7 @@ caia_system_design/
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/caia-system-design.git
+   git clone https://github.com/Vachhani-Tapan/caia_system_design.git
    ```
 
 2. **Backend Setup**:
@@ -162,3 +164,27 @@ caia_system_design/
    npm install
    npm run dev
    ```
+
+---
+
+## 🛠️ Summary of Recent Platform Optimizations & Fixes
+
+During the recent iteration, the following improvements and fixes were successfully implemented across the codebase:
+
+### 1. Database & Schema Cleanups
+* **Removed 'Easy' Option**: Deprecated and deleted the `"easy"` difficulty tier across backend validators (`validationController.js`), models (`Concept.js`), seed scripts, and frontend dropdown filters.
+* **Auto-Migration**: Integrated automatic startup database migrations in `db.js` that normalize any legacy `"easy"` concepts to `"beginner"`.
+* **Seed Profiles**: Configured auto-seeding of standard user (`user@caia.com` / `user1234`) and admin (`admin@caia.com` / `admin1234`) testing profiles.
+
+### 2. UI Robustness & Field Normalization
+* **Metadata Fallbacks**: Solved the "empty yellow boxes" layout issue by adding fallbacks to normalize concepts that store fields inside the `metadata` object rather than root level (`category`, `subcategory`, `difficulty`, `questionType`).
+* **Pagination Resolution**: Patched a bug causing multiple pages to not load by aligning the frontend total pages calculation with the backend paginator output (`res.data.pages` fallback).
+* **React child error #31 fix**: Added a `getErrorMessage` utility in `LoginPage.jsx` and `Dashboard.jsx` to parse object-based gateway errors (such as 502 Bad Gateway payloads) into string formats, avoiding fatal client crashes.
+
+### 3. Server Route Adjustments
+* **Welcome Endpoint**: Created a descriptive JSON welcome page at the backend's root `/` route.
+* **Router Order Priority**: Moved the root endpoint declaration before mounted router modules to prevent interception issues and false `"unauthorized"` errors on load.
+
+### 4. Cross-Origin Deployment Integration
+* **Dynamic CORS**: Updated backend CORS configuration to dynamically authorize the `FRONTEND_URL` origin with full credentials support, stripping trailing slashes automatically to prevent browser preflight blocks.
+* **Dynamic API Routing**: Configured the frontend client Axios instance to dynamically resolve to `import.meta.env.VITE_API_URL`, fallback to the live Render backend URL in production, or route to Vite's dev server proxy in development.
